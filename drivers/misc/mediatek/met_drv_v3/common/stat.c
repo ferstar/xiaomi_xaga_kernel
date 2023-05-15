@@ -121,7 +121,7 @@ u64 met_usecs_to_cputime64(u64 n)
 #endif
 }
 
-static u64 get_idle_time(int cpu)
+ u64 get_idle_time(int cpu)
 {
 	u64 idle, idle_time = get_cpu_idle_time_us(cpu, NULL);
 
@@ -156,7 +156,7 @@ static unsigned int stat_os_polling(u64 *value, int i)
 	value[++j] = jiffies_64_to_clock_t(kcpustat_cpu(i).cpustat[CPUTIME_USER]);	/* user */
 	value[++j] = jiffies_64_to_clock_t(kcpustat_cpu(i).cpustat[CPUTIME_NICE]);	/* nice */
 	value[++j] = jiffies_64_to_clock_t(kcpustat_cpu(i).cpustat[CPUTIME_SYSTEM]);	/* system */
-	value[++j] = jiffies_64_to_clock_t(get_idle_time(i));	/* idle */
+	value[++j] = jiffies_64_to_clock_t(get_idle_time(i), NULL);	/* idle */
 	value[++j] = jiffies_64_to_clock_t(get_iowait_time(i));	/* iowait */
 	value[++j] = jiffies_64_to_clock_t(kcpustat_cpu(i).cpustat[CPUTIME_IRQ]);	/* irq */
 	value[++j] = jiffies_64_to_clock_t(kcpustat_cpu(i).cpustat[CPUTIME_SOFTIRQ]);	/* softirq */
