@@ -2528,7 +2528,7 @@ ZSTD_reduceTable_internal (U32* const table, U32 const size, U32 const reducerVa
     /* Protect special index values < ZSTD_WINDOW_START_INDEX. */
     U32 const reducerThreshold = reducerValue + ZSTD_WINDOW_START_INDEX;
     assert((size & (ZSTD_ROWSIZE-1)) == 0);  /* multiple of ZSTD_ROWSIZE */
-    assert(size < (1U<<31));   /* can be cast to int */
+    assert(size < (1U<<31));   /* can be casted to int */
 
 
     for (rowNb=0 ; rowNb < nbRows ; rowNb++) {
@@ -3368,7 +3368,7 @@ size_t ZSTD_generateSequences(ZSTD_CCtx* zc, ZSTD_Sequence* outSeqs,
                               size_t outSeqsSize, const void* src, size_t srcSize)
 {
     const size_t dstCapacity = ZSTD_compressBound(srcSize);
-    void* dst; /* Make C90 happy. */
+    void* dst = ZSTD_customMalloc(dstCapacity, ZSTD_defaultCMem);
     SeqCollector seqCollector;
     {
         int targetCBlockSize;
@@ -3381,7 +3381,6 @@ size_t ZSTD_generateSequences(ZSTD_CCtx* zc, ZSTD_Sequence* outSeqs,
         RETURN_ERROR_IF(nbWorkers != 0, parameter_unsupported, "nbWorkers != 0");
     }
 
-    dst = ZSTD_customMalloc(dstCapacity, ZSTD_defaultCMem);
     RETURN_ERROR_IF(dst == NULL, memory_allocation, "NULL pointer!");
 
     seqCollector.collectSequences = 1;

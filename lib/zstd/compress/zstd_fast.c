@@ -547,7 +547,8 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(
             size_t const dictHashAndTag1 = ZSTD_hashPtr(ip1, dictHBits, mls);
             hashTable[hash0] = curr;   /* update hash table */
 
-            if ((ZSTD_index_overlap_check(prefixStartIndex, repIndex)) 
+            if (((U32) ((prefixStartIndex - 1) - repIndex) >=
+                 3) /* intentional underflow : ensure repIndex isn't overlapping dict + prefix */
                 && (MEM_read32(repMatch) == MEM_read32(ip0 + 1))) {
                 const BYTE* const repMatchEnd = repIndex < prefixStartIndex ? dictEnd : iend;
                 mLength = ZSTD_count_2segments(ip0 + 1 + 4, repMatch + 4, iend, repMatchEnd, prefixStart) + 4;
@@ -631,7 +632,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(
                 const BYTE* repMatch2 = repIndex2 < prefixStartIndex ?
                         dictBase - dictIndexDelta + repIndex2 :
                         base + repIndex2;
-                if ( (ZSTD_index_overlap_check(prefixStartIndex, repIndex2))
+                if ( ((U32)((prefixStartIndex-1) - (U32)repIndex2) >= 3 /* intentional overflow */)
                    && (MEM_read32(repMatch2) == MEM_read32(ip0))) {
                     const BYTE* const repEnd2 = repIndex2 < prefixStartIndex ? dictEnd : iend;
                     size_t const repLength2 = ZSTD_count_2segments(ip0+4, repMatch2+4, iend, repEnd2, prefixStart) + 4;
@@ -925,7 +926,7 @@ _match: /* Requires: ip0, match0, offcode, matchEnd */
         while (ip0 <= ilimit) {
             U32 const repIndex2 = (U32)(ip0-base) - offset_2;
             const BYTE* const repMatch2 = repIndex2 < prefixStartIndex ? dictBase + repIndex2 : base + repIndex2;
-            if ( ((ZSTD_index_overlap_check(prefixStartIndex, repIndex2)) & (offset_2 > 0))
+            if ( (((U32)((prefixStartIndex-1) - repIndex2) >= 3) & (offset_2 > 0))  /* intentional underflow */
                  && (MEM_read32(repMatch2) == MEM_read32(ip0)) ) {
                 const BYTE* const repEnd2 = repIndex2 < prefixStartIndex ? dictEnd : iend;
                 size_t const repLength2 = ZSTD_count_2segments(ip0+4, repMatch2+4, iend, repEnd2, prefixStart) + 4;

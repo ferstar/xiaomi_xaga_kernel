@@ -1591,7 +1591,7 @@ size_t ZSTD_compressBlock_lazy_generic(
                                 && repIndex < prefixLowestIndex) ?
                                    dictBase + (repIndex - dictIndexDelta) :
                                    base + repIndex;
-            if ((ZSTD_index_overlap_check(prefixLowestIndex, repIndex))
+            if (((U32)((prefixLowestIndex-1) - repIndex) >= 3 /* intentional underflow */)
                 && (MEM_read32(repMatch) == MEM_read32(ip+1)) ) {
                 const BYTE* repMatchEnd = repIndex < prefixLowestIndex ? dictEnd : iend;
                 matchLength = ZSTD_count_2segments(ip+1+4, repMatch+4, iend, repMatchEnd, prefixLowest) + 4;
@@ -1643,7 +1643,7 @@ size_t ZSTD_compressBlock_lazy_generic(
                 const BYTE* repMatch = repIndex < prefixLowestIndex ?
                                dictBase + (repIndex - dictIndexDelta) :
                                base + repIndex;
-                if ((ZSTD_index_overlap_check(prefixLowestIndex, repIndex))
+                if (((U32)((prefixLowestIndex-1) - repIndex) >= 3 /* intentional underflow */)
                     && (MEM_read32(repMatch) == MEM_read32(ip)) ) {
                     const BYTE* repMatchEnd = repIndex < prefixLowestIndex ? dictEnd : iend;
                     size_t const mlRep = ZSTD_count_2segments(ip+4, repMatch+4, iend, repMatchEnd, prefixLowest) + 4;
@@ -1679,7 +1679,7 @@ size_t ZSTD_compressBlock_lazy_generic(
                     const BYTE* repMatch = repIndex < prefixLowestIndex ?
                                    dictBase + (repIndex - dictIndexDelta) :
                                    base + repIndex;
-                    if ((ZSTD_index_overlap_check(prefixLowestIndex, repIndex))
+                    if (((U32)((prefixLowestIndex-1) - repIndex) >= 3 /* intentional underflow */)
                         && (MEM_read32(repMatch) == MEM_read32(ip)) ) {
                         const BYTE* repMatchEnd = repIndex < prefixLowestIndex ? dictEnd : iend;
                         size_t const mlRep = ZSTD_count_2segments(ip+4, repMatch+4, iend, repMatchEnd, prefixLowest) + 4;
@@ -1741,7 +1741,7 @@ _storeSequence:
                 const BYTE* repMatch = repIndex < prefixLowestIndex ?
                         dictBase - dictIndexDelta + repIndex :
                         base + repIndex;
-                if ( (ZSTD_index_overlap_check(prefixLowestIndex, repIndex))
+                if ( ((U32)((prefixLowestIndex-1) - (U32)repIndex) >= 3 /* intentional overflow */)
                    && (MEM_read32(repMatch) == MEM_read32(ip)) ) {
                     const BYTE* const repEnd2 = repIndex < prefixLowestIndex ? dictEnd : iend;
                     matchLength = ZSTD_count_2segments(ip+4, repMatch+4, iend, repEnd2, prefixLowest) + 4;
@@ -1987,7 +1987,7 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(
             const U32 repIndex = (U32)(curr+1 - offset_1);
             const BYTE* const repBase = repIndex < dictLimit ? dictBase : base;
             const BYTE* const repMatch = repBase + repIndex;
-            if ( (ZSTD_index_overlap_check(dictLimit, repIndex))
+            if ( ((U32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow */
                & (offset_1 <= curr+1 - windowLow) ) /* note: we are searching at curr+1 */
             if (MEM_read32(ip+1) == MEM_read32(repMatch)) {
                 /* repcode detected we should take it */
@@ -2028,7 +2028,7 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(
                 const U32 repIndex = (U32)(curr - offset_1);
                 const BYTE* const repBase = repIndex < dictLimit ? dictBase : base;
                 const BYTE* const repMatch = repBase + repIndex;
-                if ( (ZSTD_index_overlap_check(dictLimit, repIndex))
+                if ( ((U32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow : do not test positions overlapping 2 memory segments  */
                    & (offset_1 <= curr - windowLow) ) /* equivalent to `curr > repIndex >= windowLow` */
                 if (MEM_read32(ip) == MEM_read32(repMatch)) {
                     /* repcode detected */
@@ -2060,7 +2060,7 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(
                     const U32 repIndex = (U32)(curr - offset_1);
                     const BYTE* const repBase = repIndex < dictLimit ? dictBase : base;
                     const BYTE* const repMatch = repBase + repIndex;
-                    if ( (ZSTD_index_overlap_check(dictLimit, repIndex))
+                    if ( ((U32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow : do not test positions overlapping 2 memory segments  */
                        & (offset_1 <= curr - windowLow) ) /* equivalent to `curr > repIndex >= windowLow` */
                     if (MEM_read32(ip) == MEM_read32(repMatch)) {
                         /* repcode detected */
@@ -2114,7 +2114,7 @@ _storeSequence:
             const U32 repIndex = repCurrent - offset_2;
             const BYTE* const repBase = repIndex < dictLimit ? dictBase : base;
             const BYTE* const repMatch = repBase + repIndex;
-            if ( (ZSTD_index_overlap_check(dictLimit, repIndex))
+            if ( ((U32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow : do not test positions overlapping 2 memory segments  */
                & (offset_2 <= repCurrent - windowLow) ) /* equivalent to `curr > repIndex >= windowLow` */
             if (MEM_read32(ip) == MEM_read32(repMatch)) {
                 /* repcode detected we should take it */

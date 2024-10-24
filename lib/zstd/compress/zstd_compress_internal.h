@@ -1235,8 +1235,8 @@ MEM_STATIC void ZSTD_window_init(ZSTD_window_t* window) {
 MEM_STATIC
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
 U32 ZSTD_window_update(ZSTD_window_t* window,
-                 const void* src, size_t srcSize,
-                       int forceNonContiguous)
+                                  void const* src, size_t srcSize,
+                                  int forceNonContiguous)
 {
     BYTE const* const ip = (BYTE const*)src;
     U32 contiguous = 1;
@@ -1304,13 +1304,6 @@ MEM_STATIC U32 ZSTD_getLowestPrefixIndex(const ZSTD_matchState_t* ms, U32 curr, 
     return matchLowest;
 }
 
-/* index_safety_check:
- * intentional underflow : ensure repIndex isn't overlapping dict + prefix
- * @return 1 if values are not overlapping,
- * 0 otherwise */
-MEM_STATIC int ZSTD_index_overlap_check(const U32 prefixLowestIndex, const U32 repIndex) {
-    return ((U32)((prefixLowestIndex-1)  - repIndex) >= 3);
-}
 
 
 /* debug functions */
