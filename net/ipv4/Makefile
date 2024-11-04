@@ -16,7 +16,7 @@ obj-y     := route.o inetpeer.o protocol.o \
 	     inet_fragment.o ping.o ip_tunnel_core.o gre_offload.o \
 	     metrics.o netlink.o nexthop.o udp_tunnel_stub.o
 
-obj-y += tcp_bbr2.o
+obj-y += tcp_bbr.o
 obj-y += tcp_brutal.o
 
 obj-$(CONFIG_BPFILTER) += bpfilter/
