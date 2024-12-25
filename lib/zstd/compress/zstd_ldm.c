@@ -171,22 +171,22 @@ size_t ZSTD_ldm_getMaxNbSeq(ldmParams_t params, size_t maxChunkSize)
 /* ZSTD_ldm_getBucket() :
  *  Returns a pointer to the start of the bucket associated with hash. */
 static ldmEntry_t* ZSTD_ldm_getBucket(
-        ldmState_t* ldmState, size_t hash, ldmParams_t const ldmParams)
+        const ldmState_t* ldmState, size_t hash, U32 const bucketSizeLog)
 {
-    return ldmState->hashTable + (hash << ldmParams.bucketSizeLog);
+    return ldmState->hashTable + (hash << bucketSizeLog);
 }
 
 /* ZSTD_ldm_insertEntry() :
  *  Insert the entry with corresponding hash into the hash table */
 static void ZSTD_ldm_insertEntry(ldmState_t* ldmState,
                                  size_t const hash, const ldmEntry_t entry,
-                                 ldmParams_t const ldmParams)
+                                 U32 const bucketSizeLog)
 {
     BYTE* const pOffset = ldmState->bucketOffsets + hash;
     unsigned const offset = *pOffset;
 
-    *(ZSTD_ldm_getBucket(ldmState, hash, ldmParams) + offset) = entry;
-    *pOffset = (BYTE)((offset + 1) & ((1u << ldmParams.bucketSizeLog) - 1));
+    *(ZSTD_ldm_getBucket(ldmState, hash, bucketSizeLog) + offset) = entry;
+    *pOffset = (BYTE)((offset + 1) & ((1u << bucketSizeLog) - 1));
 
 }
 
@@ -274,7 +274,8 @@ void ZSTD_ldm_fillHashTable(
             const BYTE* iend, ldmParams_t const* params)
 {
     U32 const minMatchLength = params->minMatchLength;
-    U32 const hBits = params->hashLog - params->bucketSizeLog;
+    U32 const bucketSizeLog = params->bucketSizeLog;
+    U32 const hBits = params->hashLog - bucketSizeLog;
     BYTE const* const base = ldmState->window.base;
     BYTE const* const istart = ip;
     ldmRollingHashState_t hashState;
@@ -289,7 +290,7 @@ void ZSTD_ldm_fillHashTable(
         unsigned n;
 
         numSplits = 0;
-        hashed = ZSTD_ldm_gear_feed(&hashState, ip, iend - ip, splits, &numSplits);
+        hashed = ZSTD_ldm_gear_feed(&hashState, ip, (size_t)(iend - ip), splits, &numSplits);
 
         for (n = 0; n < numSplits; n++) {
             if (ip + splits[n] >= istart + minMatchLength) {
@@ -300,7 +301,7 @@ void ZSTD_ldm_fillHashTable(
 
                 entry.offset = (U32)(split - base);
                 entry.checksum = (U32)(xxhash >> 32);
-                ZSTD_ldm_insertEntry(ldmState, hash, entry, *params);
+                ZSTD_ldm_insertEntry(ldmState, hash, entry, params->bucketSizeLog);
             }
         }
 
@@ -380,7 +381,7 @@ size_t ZSTD_ldm_generateSequences_internal(
             candidates[n].split = split;
             candidates[n].hash = hash;
             candidates[n].checksum = (U32)(xxhash >> 32);
-            candidates[n].bucket = ZSTD_ldm_getBucket(ldmState, hash, *params);
+            candidates[n].bucket = ZSTD_ldm_getBucket(ldmState, hash, params->bucketSizeLog);
             PREFETCH_L1(candidates[n].bucket);
         }
 
@@ -403,7 +404,7 @@ size_t ZSTD_ldm_generateSequences_internal(
              * the previous one, we merely register it in the hash table and
              * move on */
             if (split < anchor) {
-                ZSTD_ldm_insertEntry(ldmState, hash, newEntry, *params);
+                ZSTD_ldm_insertEntry(ldmState, hash, newEntry, params->bucketSizeLog);
                 continue;
             }
 
@@ -450,7 +451,7 @@ size_t ZSTD_ldm_generateSequences_internal(
             /* No match found -- insert an entry into the hash table
              * and process the next candidate match */
             if (bestEntry == NULL) {
-                ZSTD_ldm_insertEntry(ldmState, hash, newEntry, *params);
+                ZSTD_ldm_insertEntry(ldmState, hash, newEntry, params->bucketSizeLog);
                 continue;
             }
 
@@ -471,7 +472,7 @@ size_t ZSTD_ldm_generateSequences_internal(
 
             /* Insert the current entry into the hash table --- it must be
              * done after the previous block to avoid clobbering bestEntry */
-            ZSTD_ldm_insertEntry(ldmState, hash, newEntry, *params);
+            ZSTD_ldm_insertEntry(ldmState, hash, newEntry, params->bucketSizeLog);
 
             anchor = split + forwardMatchLength;
 
