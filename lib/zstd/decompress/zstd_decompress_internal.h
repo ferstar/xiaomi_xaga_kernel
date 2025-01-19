@@ -137,7 +137,7 @@ struct ZSTD_DCtx_s
     const void* virtualStart;     /* virtual start of previous segment if it was just before current one */
     const void* dictEnd;          /* end of previous segment */
     size_t expected;
-    ZSTD_frameHeader fParams;
+    ZSTD_FrameHeader fParams;
     U64 processedCSize;
     U64 decodedSize;
     blockType_e bType;            /* used in ZSTD_decompressContinue(), store blockType between block header decoding and block decompression stages */

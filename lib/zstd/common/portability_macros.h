@@ -71,7 +71,7 @@
  * Only enable assembly for GNU C compatible compilers,
  * because other platforms may not support GAS assembly syntax.
  *
- * Only enable assembly for Linux / MacOS, other platforms may
+ * Only enable assembly for Linux / MacOS / Win32, other platforms may
  * work, but they haven't been tested. This could likely be
  * extended to BSD systems.
  *

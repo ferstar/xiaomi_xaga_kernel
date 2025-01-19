@@ -14,7 +14,7 @@
 
 static
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
-void ZSTD_fillHashTableForCDict(ZSTD_matchState_t* ms,
+void ZSTD_fillHashTableForCDict(ZSTD_MatchState_t* ms,
                         const void* const end,
                         ZSTD_dictTableLoadMethod_e dtlm)
 {
@@ -51,7 +51,7 @@ void ZSTD_fillHashTableForCDict(ZSTD_matchState_t* ms,
 
 static
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
-void ZSTD_fillHashTableForCCtx(ZSTD_matchState_t* ms,
+void ZSTD_fillHashTableForCCtx(ZSTD_MatchState_t* ms,
                         const void* const end,
                         ZSTD_dictTableLoadMethod_e dtlm)
 {
@@ -85,7 +85,7 @@ void ZSTD_fillHashTableForCCtx(ZSTD_matchState_t* ms,
     }   }   }   }
 }
 
-void ZSTD_fillHashTable(ZSTD_matchState_t* ms,
+void ZSTD_fillHashTable(ZSTD_MatchState_t* ms,
                         const void* const end,
                         ZSTD_dictTableLoadMethod_e dtlm,
                         ZSTD_tableFillPurpose_e tfp)
@@ -189,7 +189,7 @@ ZSTD_match4Found_branch(const BYTE* currentPtr, const BYTE* matchAddress, U32 ma
 FORCE_INLINE_TEMPLATE
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
 size_t ZSTD_compressBlock_fast_noDict_generic(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize,
         U32 const mls, int useCmov)
 {
@@ -423,7 +423,7 @@ _match: /* Requires: ip0, match0, offcode */
 
 #define ZSTD_GEN_FAST_FN(dictMode, mml, cmov)                                                       \
     static size_t ZSTD_compressBlock_fast_##dictMode##_##mml##_##cmov(                              \
-            ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],                    \
+            ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],                    \
             void const* src, size_t srcSize)                                                       \
     {                                                                                              \
         return ZSTD_compressBlock_fast_##dictMode##_generic(ms, seqStore, rep, src, srcSize, mml, cmov); \
@@ -440,7 +440,7 @@ ZSTD_GEN_FAST_FN(noDict, 6, 0)
 ZSTD_GEN_FAST_FN(noDict, 7, 0)
 
 size_t ZSTD_compressBlock_fast(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize)
 {
     U32 const mml = ms->cParams.minMatch;
@@ -480,7 +480,7 @@ size_t ZSTD_compressBlock_fast(
 FORCE_INLINE_TEMPLATE
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
 size_t ZSTD_compressBlock_fast_dictMatchState_generic(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize, U32 const mls, U32 const hasStep)
 {
     const ZSTD_compressionParameters* const cParams = &ms->cParams;
@@ -499,7 +499,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(
     const BYTE* const ilimit = iend - HASH_READ_SIZE;
     U32 offset_1=rep[0], offset_2=rep[1];
 
-    const ZSTD_matchState_t* const dms = ms->dictMatchState;
+    const ZSTD_MatchState_t* const dms = ms->dictMatchState;
     const ZSTD_compressionParameters* const dictCParams = &dms->cParams ;
     const U32* const dictHashTable = dms->hashTable;
     const U32 dictStartIndex       = dms->window.dictLimit;
@@ -683,7 +683,7 @@ ZSTD_GEN_FAST_FN(dictMatchState, 6, 0)
 ZSTD_GEN_FAST_FN(dictMatchState, 7, 0)
 
 size_t ZSTD_compressBlock_fast_dictMatchState(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize)
 {
     U32 const mls = ms->cParams.minMatch;
@@ -706,7 +706,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState(
 static
 ZSTD_ALLOW_POINTER_OVERFLOW_ATTR
 size_t ZSTD_compressBlock_fast_extDict_generic(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize, U32 const mls, U32 const hasStep)
 {
     const ZSTD_compressionParameters* const cParams = &ms->cParams;
@@ -964,7 +964,7 @@ ZSTD_GEN_FAST_FN(extDict, 6, 0)
 ZSTD_GEN_FAST_FN(extDict, 7, 0)
 
 size_t ZSTD_compressBlock_fast_extDict(
-        ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+        ZSTD_MatchState_t* ms, SeqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
         void const* src, size_t srcSize)
 {
     U32 const mls = ms->cParams.minMatch;

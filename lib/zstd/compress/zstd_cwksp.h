@@ -20,7 +20,6 @@
 #include "../common/portability_macros.h"
 #include "../common/compiler.h" /* ZS2_isPower2 */
 
-
 /*-*************************************
 *  Constants
 ***************************************/
@@ -654,6 +653,5 @@ MEM_STATIC void ZSTD_cwksp_bump_oversized_duration(
         ws->workspaceOversizedDuration = 0;
     }
 }
-
 
 #endif /* ZSTD_CWKSP_H */

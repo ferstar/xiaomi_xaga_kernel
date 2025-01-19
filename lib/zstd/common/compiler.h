@@ -150,7 +150,7 @@
 
 /* disable warnings */
 
-/*Like DYNAMIC_BMI2 but for compile time determination of BMI2 support*/
+/* Like DYNAMIC_BMI2 but for compile time determination of BMI2 support */
 
 
 /* compile time determination of SIMD support */
@@ -175,7 +175,7 @@
 #define ZSTD_FALLTHROUGH fallthrough
 
 /*-**************************************************************
-*  Alignment check
+*  Alignment
 *****************************************************************/
 
 /* @return 1 if @u is a 2^n value, 0 otherwise
@@ -197,6 +197,12 @@ MEM_STATIC int ZSTD_isPower2(size_t u) {
 #  define ZSTD_ALIGNOF(T) __alignof(T)
 
 #endif /* ZSTD_ALIGNOF */
+
+#ifndef ZSTD_ALIGNED
+/* C90-compatible alignment macro (GCC/Clang). Adjust for other compilers if needed. */
+#define ZSTD_ALIGNED(a) __attribute__((aligned(a)))
+#endif /* ZSTD_ALIGNED */
+
 
 /*-**************************************************************
 *  Sanitizer
