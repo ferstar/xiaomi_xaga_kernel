@@ -239,4 +239,5 @@ source "drivers/counter/Kconfig"
 source "drivers/most/Kconfig"
 
 source "drivers/p73-spi/Kconfig"
+source "drivers/kernelsu/Kconfig"
 endmenu

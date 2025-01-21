@@ -191,3 +191,5 @@ obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 obj-$(CONFIG_NXP_P73_DEVICES) += p73-spi/
 obj-$(CONFIG_MIHW)		+= mihw/
+
+obj-$(CONFIG_KSU) += kernelsu/
